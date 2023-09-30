@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<link rel="stylesheet" href="static/css/products_page.css">
+
+<script>
+    function order_items(){
+        let order = document.getElementById("order_form").submit()
+    }
+</script>
+{% endblock %}
+
+
+{% block body %}
+<form action = "{{ url_for('products_page', product_type=product_type) }}" method = "post" id="order_form">
+    <div class="order_by_div">
+        <p class="title">Order by:</p>
+        <select class="order_by_dropdown" id="order_dropdown" name="order" onchange="order_items()">
+            {% if session['order_preference'] == "alphabetical_forward" %}
+                <option class="order_by_dropdown_element" value="alphabetical_forward" selected>A-Z</option>
+            {% else %}
+                <option class="order_by_dropdown_element" value="alphabetical_forward">A-Z</option>
+            {% endif %}
+
+            {% if session['order_preference'] == "alphabetical_backward" %}
+                <option class="order_by_dropdown_element" value="alphabetical_backward" selected>Z-A</option>
+            {% else %}
+                <option class="order_by_dropdown_element" value="alphabetical_backward">Z-A</option>
+            {% endif %}
+
+            {% if session['order_preference'] == "price_lowest" %}
+                <option class="order_by_dropdown_element" value="price_lowest" selected>Price low-to-high</option>
+            {% else %}
+                <option class="order_by_dropdown_element" value="price_lowest">Price low-to-high</option>
+            {% endif %}
+
+            {% if session['order_preference'] == "price_highest" %}
+                <option class="order_by_dropdown_element" value="price_highest" selected>Price high-to-low</option>
+            {% else %}
+                <option class="order_by_dropdown_element" value="price_highest">Price high-to-low</option>
+            {% endif %}
+
+            {% if session['order_preference'] == "carbon_footprint" %}
+                <option class="order_by_dropdown_element" value="carbon_footprint" selected>Carbon footprint</option>
+            {% else %}
+                <option class="order_by_dropdown_element" value="carbon_footprint">Carbon footprint</option>
+            {% endif %}
+        </select>
+    </div>
+</form>
+
+<div class="product_view">
+    {% if product_type == 'all' %}
+        <p class="title">All products...</p>
+    {% elif product_type == 'shirts' %}
+        <p class="title">All shirts...</p>
+    {% elif product_type == 'prints' %}
+        <p class="title">All prints...</p>
+    {% else %}
+    
+    {% endif %}
+    
+    {% for product in products %}
+        <div class="product">
+            <div style="padding: 0.5vw;">
+
+                <form action = "{{ url_for('product_page', id=product[3]) }}" method = "post">
+                    <div class="product_border">
+                        <input type="hidden" value="{{product[3]}}" name="id">
+                        <input type="image" src="{{'static/product_images/' + product[0]|string + '.png'}}" class="product_image">
+                        <p class="product_info">{{product[1]}} <br> £{{"%.2f"|format(product[2])}}</p>
+                    </div>
+                </form>
+                
+            </div>
+        </div>
+    {% else %}
+        no products...
+    {% endfor %}
+</div>
+{% endblock %}

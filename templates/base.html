@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="static/css/main.css">
+        <title>ScaredyCatApparel</title>
+        {% block head %}{% endblock %}
+
+        <script>
+            function nav_main_page(){
+                location.href="{{ url_for('front_page') }}";
+            };
+
+            function nav_products_page(product_type){
+                if (product_type == "shirts"){
+                    location.href=`{{ url_for('products_page', product_type='shirts') }}`;
+                }
+                else if (product_type == "prints")
+                {
+                    location.href=`{{ url_for('products_page', product_type='prints') }}`;
+                }
+                else if (product_type == "all")
+                {
+                    location.href=`{{ url_for('products_page', product_type='all') }}`;
+                }
+                
+            };
+
+            function nav_account_page(){
+                location.href="{{ url_for('account_page') }}";
+            };
+
+            function nav_basket_page(){
+                location.href="{{ url_for('basket_page') }}";
+            };
+
+            function display_login_popup(){
+                if("{{session['id']}}" != ""){
+                    nav_account_page();
+                }
+                else{
+                    document.getElementById("login_popup").style.display = "block";
+                    document.getElementById("register_popup").style.display = "none";
+                }
+            };
+
+            function close_login_popup(){
+                document.getElementById("login_popup").style.display = "none"
+                document.getElementById("register_popup").style.display = "none"
+            };
+
+            function show_login_password(){
+                var check = document.getElementById("show_login_password_check");
+                var password = document.getElementById("login_password");
+
+                if (check.checked){
+                    password.type = "text"
+                } else {
+                    password.type = "password"
+                }
+            };
+
+            function show_register_password(){
+                var check = document.getElementById("show_register_password_check");
+                var password = document.getElementById("register_password");
+
+                if (check.checked){
+                    password.type = "text"
+                } else {
+                    password.type = "password"
+                }
+            };
+
+            function show_register_popup(){
+                document.getElementById("login_popup").style.display = "none"
+                document.getElementById("register_popup").style.display = "block"
+            };
+
+            function validate_login(){
+                return true
+            };
+
+            function validate_register(){
+                let email = document.forms["register_form"]["register_email"].value;
+                let password = document.forms["register_form"]["register_password"].value;
+                
+                let flag = true
+
+                let emailRegex = /(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9]))\.){3}(?:(2(5[0-5]|[0-4][0-9])|1[0-9][0-9]|[1-9]?[0-9])|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/
+                if (emailRegex.test(email)) {document.getElementById("invalid_register_email").style.display = "none"} else {document.getElementById("invalid_register_email").style.display = "block"; flag = false}
+
+                let passwordRegex = /^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/
+                if (passwordRegex.test(password)) {document.getElementById("invalid_register_password").style.display = "none"} else {document.getElementById("invalid_register_password").style.display = "block"; flag = false}
+
+                return flag
+            }
+
+        </script>
+    </head>
+
+
+    <body>
+        <div class="header_container">
+
+            <div class="title_div">
+                <div class="title_image_container"></div>
+                <div class="title_image_container"><img class="title_image" src="static/images/scaredycat_title.png" onclick="nav_main_page()"></div>
+
+                <div class="navigation_list">
+                    <div class="navigation_icon_flex">
+                        <img class="navigation_icon" src="static/images/checkout_icon.png" onclick="nav_basket_page()">
+                        <p class="navigation_text">trolley</p>
+                    </div>
+
+                    <div class="navigation_icon_flex">
+                        <img class="navigation_icon" src="static/images/account_icon.png" onclick="display_login_popup()">
+                        {% if session['id'] %}
+                            <p class="navigation_text">my account</p>
+                        {% else %}
+                            <p class="navigation_text">log in</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="category_div">
+                <div class="category_flex">
+                    <button class="category_button" onclick="nav_products_page('all')">All</button>
+                    <button class="category_button" onclick="nav_products_page('shirts')">Shirts</button>
+                    <button class="category_button" onclick="nav_products_page('prints')">Prints</button>
+                    <!-- <button class="category_button" onclick="">New</button> -->
+                </div>
+
+                <form action="{{ url_for('search') }}" method="post">
+                    <div class="search_bar_div">
+                        <input type="text" size="12" placeholder="Search..." name="search_input" class="search_bar" id="search_bar">
+                        <input type="image" class="search_button" src="static/images/search_icon.png">
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+        <div class="login_popup" id="login_popup">
+            <input type="image" src="static/images/close_icon.png" class="close_popup" onclick="close_login_popup()">
+
+            <form action="{{ url_for('login_user') }}" method="post" id="login_form" onsubmit="return validate_login()">
+                <div class="login_form_container" id="login_or_register">
+                    <p class="login_title">Sign in</p>
+
+                    <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+                    <label for="email" class="login_label">Email:</label>
+                    <input type="text" class="login_input" id="email" name="login_email" placeholder="your email...">
+
+                    <label for="password" class="login_label">Password:</label>
+                    <input type="password" class="login_input" id="login_password" name="login_password" placeholder="your password...">
+
+                    <div class="show_password_container">
+                        <input type="checkbox" id="show_login_password_check" onclick="show_login_password()">
+                        <label class="show_password_text">show password</label>
+                    </div>
+
+                    <p class="login_response_message" id="invalid_login">email or password is incorrect</p>
+
+                    <input type="submit" class="login_button" value="Next">
+
+                    <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+                    <p class="login_title">Create an account?</p>
+                    <p class="login_text">click below to quickly and easily create your own scaredy cat account</p>
+                    <input type="button" class="login_button" value="Sign up now" onclick="show_register_popup()">
+                </div>
+            </form>
+        </div>
+
+        <div class="login_popup" id="register_popup">
+            <input type="image" src="static/images/close_icon.png" class="close_popup" onclick="close_login_popup()">
+
+            <form action="{{ url_for('register_user') }}" method="post" id="register_form" onsubmit="return validate_register()">
+
+                <div class="login_form_container" id="register">
+                    <p class="login_title">Create account</p>
+
+                    <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+                    <label for="email" class="login_label">Email:</label>
+                    <input type="text" class="login_input" id="register_email" name="register_email" placeholder="your email...">
+                    <p class="login_response_message" id="invalid_register_email">invalid email</p>
+
+                    <label for="password" class="login_label">Password:</label>
+                    <input type="password" class="login_input" id="register_password" name="register_password" placeholder="your password...">
+                    <p class="login_response_message" id="invalid_register_password">password must be at least eight characters, contain one number, one uppercase and special character.</p>
+
+                    <div class="show_password_container">
+                        <input type="checkbox" id="show_register_password_check" onclick="show_register_password()">
+                        <label class="show_password_text">show password</label>
+                    </div>
+
+                    <label for="gender" class="login_label">Gender:</label>
+                    <select id="gender" name="register_gender" class="login_dropdown">
+                        <option value="male" class="login_dropdown_item">Male</option>
+                        <option value="female" class="login_dropdown_item">Female</option>
+                        <option value="na" class="login_dropdown_item">Prefer not to respond</option>
+                    </select>
+
+                    <input type="submit" class="login_button" value="Register">
+                
+                    <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+                    <p class="login_title">Already have an account?</p>
+                    <input type="button" class="login_button" value="Log in now" onclick="display_login_popup()">
+                </div>
+
+            </form>
+
+        </div>
+
+        {% block body %}{% endblock %}
+
+        <div class="bottom_info_div">
+            <img class="bottom_screen_logo" src="static/images/scaredycat_title.png">
+
+            <div class="partner_store_div">
+                <p class="banner_description">Visit our partner store:</p>
+                <img class="partner_banner" src="static/images/partner_banner.png">
+            </div>
+
+            <a style="font-family: main; font-size: 1vw; color: black;" href="https://www.fruitoftheloom.eu/s/?language=en_GB">See our shirt supplier here</a>
+        </div>
+    </body>
+</html>

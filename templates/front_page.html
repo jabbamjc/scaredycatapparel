@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<link rel="stylesheet" href="static/css/front_page.css">
+{% endblock %}
+
+
+{% block body %}
+<div class="front_page_div">
+    <p class="popular_items_title">What's Popular...</p>
+
+    <div class="popular_items_div">
+        <div class="popular_items_flex">
+
+            {% for result in results %}
+
+                <form action = "{{ url_for('product_page', id=result[2]) }}" method = "post">
+                    <div class="popular_item_div">
+                        <input type="hidden" value="{{result[2]}}" name="id">
+                        <input type="image" src="{{'static/product_images/' + result[0]|string + '.png'}}" class="popular_item_image">
+                    </div>
+                </form>
+
+            {% endfor %}
+
+        </div>
+    </div>
+
+    <div class="slideshow_flex">
+        <div class="shirt_slideshow" onclick="nav_products_page('shirts')">
+            <img src="{{'static/images/slideshow_banner_shirts.png'}}" class="shirt_banner">
+            <img src="{{'static/product_images/1.png'}}" class="slideshow_image">
+        </div>
+
+        <div class="print_slideshow" onclick="nav_products_page('prints')">
+            <img src="{{'static/images/slideshow_banner_prints.png'}}" class="print_banner">
+            <img src="{{'static/product_images/1.png'}}" class="slideshow_image">
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let shirt_image = document.getElementById("changing_shirt")
+    let print_image = document.getElementById("changing_print")
+    let images = ["static/product_images/1.png", "static/product_images/2.png"]
+    setInterval(function(){
+        shirt_image.src = images[Math.floor(Math.random() * 2)];
+    }, 4000)
+
+</script>
+{% endblock %}

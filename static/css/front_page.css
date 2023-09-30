@@ -1,0 +1,97 @@
+.front_page_div{
+    width: 80%;
+    margin: auto;
+}
+
+.popular_items_div{
+    overflow: hidden;
+    overflow-x: auto;
+
+    padding-bottom: 1vw;
+    margin-bottom: 2vw;
+}
+
+.popular_items_title{
+    font-family: main;
+    font-size: 2vw;
+
+    margin: 1vw 0 1vw 1vw;
+}
+
+.popular_items_flex{
+    display: flex;
+    flex-direction: row;
+    column-gap: 4vw;
+
+    width: fit-content;
+
+    margin: auto;
+}
+
+.popular_item_div{
+    height: 20vw;
+
+    cursor: pointer;
+}
+
+.popular_item_image{
+    height: 100%;
+
+    border: 0.4vw solid black;
+    border-radius: 1vw;
+}
+
+.slideshow_flex{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.shirt_slideshow{
+    position: relative;
+    width: 45%;
+
+    cursor: pointer;
+}
+
+.shirt_banner{
+    position: absolute;
+    top: 5%;
+    left: 5%;
+
+    width: 50%;
+}
+
+.print_slideshow{
+    position: relative;
+    width: 45%;
+
+    cursor: pointer;
+}
+
+.print_banner{
+    position: absolute;
+    top: 5%;
+    left: 95%;
+    transform: translate(-100%, 0%);
+
+    width: 50%;
+}
+
+.slideshow_image{
+    display: block;
+    width: 100%;
+
+    border: 0.5vw solid black;
+    border-radius: 1vw;
+}
+
+@media only screen and (max-width: 600px) {
+    .popular_items_title{
+        font-size: 4vw;
+    }
+
+    .popular_item_div{
+        height: 25vw;
+    }
+}

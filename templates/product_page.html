@@ -1,0 +1,161 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<link rel="stylesheet" href="static/css/product_page.css">
+
+<script>
+    function minus_quantity(){
+        current = Number(document.getElementById("quantity").innerHTML)
+        if(current > 1){
+            document.getElementById("quantity").innerHTML = current - 1
+            document.getElementById("hidden_quantity").value = current - 1
+        }
+    };
+
+    function add_quantity(){
+        current = Number(document.getElementById("quantity").innerHTML)
+        if(current < 9){
+            document.getElementById("quantity").innerHTML = current + 1
+            document.getElementById("hidden_quantity").value = current + 1
+        }
+    };
+
+    function mod(n, m) {
+        return ((n % m) + m) % m;
+    }
+
+    function change_image_forward(){
+        img = document.getElementById("product_image");
+
+        document.getElementById("image_indicator_"+img.dataset.index).style.backgroundColor = "transparent"
+        var index = mod((Number(img.dataset.index) + 1), Number('{{images|length}}'));
+
+        img.src = document.getElementById("product_image_"+index).dataset.src;
+        img.dataset.index = index
+
+        document.getElementById("image_indicator_"+index).style.backgroundColor = "black"
+    };
+
+    function change_image_backward(){
+        img = document.getElementById("product_image");
+
+        document.getElementById("image_indicator_"+img.dataset.index).style.backgroundColor = "transparent"
+        var index = mod((Number(img.dataset.index) - 1), Number('{{images|length}}'));
+
+        img.src = document.getElementById("product_image_"+index).dataset.src;
+        img.dataset.index = index
+
+        document.getElementById("image_indicator_"+index).style.backgroundColor = "black"
+    };
+
+    function validateForm(){
+        let form = document.forms["add_to_basket_form"]["size"].value;
+        if (form == "") {
+            document.getElementById("pick_size_notif").style.display = "block"
+            return false;
+        }
+    }
+</script>
+{% endblock %}
+
+
+{% block body %}
+
+<table class="product_container">
+    <tr>
+        <td class="image_container">
+            <div>
+                {% for image in images %}
+                    {% if image[2] == 1 %}
+                        <img src="{{'static/product_images/' + image[0]|string + '.png'}}" class="product_image" id="product_image" data-index="{{loop.index0}}"> 
+                    {% endif %}
+
+                    <div id="product_image_{{loop.index0}}" data-src="{{'static/product_images/' + image[0]|string + '.png'}}" ></div>
+                {% endfor %}
+            </div>
+
+            {% if images|length > 1 %}
+            <div class="change_image_buttons">
+                <button class="change_image_button" onclick="change_image_backward()"><img src="static/images/minus_icon_transparent.png" class="change_image_button_img"></button>
+                <button class="change_image_button" onclick="change_image_forward()"><img src="static/images/add_icon_transparent.png" class="change_image_button_img"></button>
+            </div>
+
+            <div class="image_indicator_container">
+                <div class="image_indicator_flex">
+                    {% for image in images %}
+                        {% if loop.index == 1 %}
+                            <span class="image_indicator" id="image_indicator_{{loop.index0}}" style="background-color: black;"></span>
+                        {% else %}
+                            <span class="image_indicator" id="image_indicator_{{loop.index0}}" style="background-color: transparent;"></span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </td>
+        <td class="info_container">
+            <form name="add_to_basket_form" action="{{ url_for('add_to_basket') }}" method="post" onsubmit="return validateForm()">
+                <div class="info_flex">
+                    <div class="name_price_container">
+                        <input type="hidden" name="item_id" value="{{id}}">
+                        <p class="product_name">{{data[0][0]}}</p>
+                        <p class="product_name">£{{"%.2f"|format(data[0][1])}}</p>
+                    </div>
+                    
+                    {% if product_type == 'shirt' %}
+                    <div class="size_select">
+                        <p class="product_name">Size</p>
+                        <div class="size_choice_flex">
+                            <input type="radio" class="radio_item" value="xs" name="size" id="xs">
+                            <label class="label_item" for="xs"> <img src="static/images/radio_extrasmall.png" class="size_radio_image"> </label>
+
+                            <input type="radio" class="radio_item" value="s" name="size" id="s">
+                            <label class="label_item" for="s"> <img src="static/images/radio_small.png" class="size_radio_image"> </label>
+
+                            <input type="radio" class="radio_item" value="m" name="size" id="m">
+                            <label class="label_item" for="m"> <img src="static/images/radio_medium.png" class="size_radio_image"> </label>
+
+                            <input type="radio" class="radio_item" value="l" name="size" id="l">
+                            <label class="label_item" for="l"> <img src="static/images/radio_large.png" class="size_radio_image"> </label>
+                        </div>
+
+                        <p class="pick_size_notif" id="pick_size_notif">pick a size</p>
+                    </div>
+                    {% else %}
+                    <input type="hidden" name="size" value="na">
+                    {% endif %}
+
+                    <div class="quantity_select_container">
+                        <p class="product_name">Qty</p>
+                        <div class="quantity_select">
+                            <img src="static/images/minus_icon.png" class="quantity_change_button" onclick="minus_quantity()">
+                            <p class="quantity_label" id="quantity">1</p>
+                            <input type="hidden" value="1" name="item_quantity" id="hidden_quantity">
+                            <img src="static/images/add_icon.png" class="quantity_change_button" onclick="add_quantity()">
+                        </div>
+                    </div>
+
+                    <input type="submit" class="add_to_basket" id="add_to_basket_button" value="Add To Basket">
+                </div>
+            </form>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <div class="description_div">
+                <p class="description_text">{{data[0][2]}}</p>
+            </div>
+        </td>
+        <td>
+            <div class="carbon_div">
+                <p class="description_text">Here at ScaredyCatApparel we are aware of our impact on the enviromnent and we are working on becoming carbon positive in the near future.<br>
+                But for now well let you make the desicion yourself.<br>
+                Making this product produced: {{data[0][4]}}Kg of CO2</p>
+            </div>
+        </td>
+    </tr>
+</table>
+
+
+{% endblock %}

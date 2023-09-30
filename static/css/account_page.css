@@ -1,0 +1,27 @@
+.account_page_div{
+    width: 100%;
+}
+
+.account_page_flex{
+    width: fit-content;
+    margin: auto;
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+
+    row-gap: 2vw;
+}
+
+.logout_button{
+    font-family: main;
+    font-size: 2vw;
+}
+
+.user_email{
+    font-family: main;
+    font-size: 2vw;
+
+    margin: 0;
+}

@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<link rel="stylesheet" href="static/css/basket_page.css">
+
+<script>
+    function minus_quantity(id){
+        current = Number(document.getElementById("quantity_"+id).innerHTML)
+        if(current > 1){
+            document.getElementById("quantity_"+id).innerHTML = current - 1
+            document.getElementById("quantity_total_"+id).innerHTML = "£" + ((current-1) * Number(document.getElementById("item_price_"+id).innerHTML)).toFixed(2)
+        }
+    };
+
+    function add_quantity(id){
+        current = Number(document.getElementById("quantity_"+id).innerHTML)
+        if(current < 9){
+            document.getElementById("quantity_"+id).innerHTML = current + 1
+            document.getElementById("quantity_total_"+id).innerHTML = "£" + ((current+1) * Number(document.getElementById("item_price_"+id).innerHTML)).toFixed(2)
+        }
+    };
+
+    function remove_item(id){
+        document.getElementById("basket_item_"+id).style.animation = "delete_item 0.5s ease-in-out 0.1s";
+
+        setTimeout(function(){
+            document.getElementById("basket_item_"+id).remove()
+        }, 500);
+    };
+
+    function show_payment_popup(){
+        if ("{{session['basket']|length == 0}}" == "True") {
+            document.getElementById("no_items").style.animation = "shake 1s linear 0s 1 forwards"
+            setTimeout(function(){
+                document.getElementById("no_items").style.animation = "none"
+            }, 1000);
+            return false
+        }
+        document.getElementById("payment_popup").style.display = "block"
+    };
+
+    function hide_payment_popup(){
+        document.getElementById("payment_popup").style.display = "none"
+    };
+
+    function validate_checkout(){
+        let name = document.forms["payment_form"]["name"].value
+        let card = document.forms["payment_form"]["card"].value
+        let expiry = document.forms["payment_form"]["expiry"].value
+        let cvv = document.forms["payment_form"]["cvv"].value
+
+        let flag = true
+
+        if (/\w\s\w/.test(name)) {document.getElementById("invalid_name").style.display = "none"} else {document.getElementById("invalid_name").style.display = "block"; flag = false}
+        if (/[0-9]{16}/.test(card)) {document.getElementById("invalid_card").style.display = "none"} else {document.getElementById("invalid_card").style.display = "block"; flag = false}
+        if (/^(0[1-9]|1[0-2])\/?([0-9]{2})$/.test(expiry)) {document.getElementById("invalid_expiry").style.display = "none"} else {document.getElementById("invalid_expiry").style.display = "block"; flag = false}
+        if (/^\d{3}$/.test(cvv)) {document.getElementById("invalid_cvv").style.display = "none"} else {document.getElementById("invalid_cvv").style.display = "block"; flag = false}
+
+        return flag
+    }
+</script>
+{% endblock %}
+
+
+{% block body %}
+
+<div class="basket_page_div">
+    <p class="basket_contents_title">Basket contents...</p>
+
+    <div class="basket_title_flex">
+        <div class="title_align_div" style="width: 40%;"><p class="basket_item_title">item(s)</p></div>
+        <div class="title_align_div" style="width: 30%;"><p class="basket_item_title">quantity</p></div>
+        <div class="title_align_div" style="width: 30%;"><p class="basket_item_title">total</p></div>
+    </div>
+
+    <div class="basket_items_flex">
+
+        <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+        {% for item in basket %}
+        <form method="post">
+            <input type="hidden" name="item_id" value="{{item[0]}}">
+            <input type="hidden" name="item_index" value="{{loop.index0}}">
+
+            <div class="basket_item_flex" id="basket_item_{{loop.index0}}">
+                <div class="item_data_div">
+                    <img src="{{'static/product_images/' + item[5]|string + '.png'}}" class="item_data_image">
+        
+                    <div class="item_data_text_div">
+                        <p class="item_data_text">{{ item[3] }}</p>
+                        {% if item[1] != "na" %}
+                        <p class="item_data_text">{{ item[1]|upper }}</p>
+                        {% endif %}
+                        <p class="item_data_text" id="item_price_{{loop.index0}}">£{{ item[4] }}</p>
+                    </div>
+                </div>
+        
+                <div class="item_quantity_div">
+                    <div class="change_quantity_flex">
+                        <input type="image" name="action" src="static/images/minus_icon.png" class="change_quantity_button" formaction="{{ url_for('minus_cart_item') }}">
+
+                        <p class="change_quantity_label" id="quantity_{{loop.index0}}">{{ item[2] }}</p>
+
+                        <input type="image" name="action" src="static/images/add_icon.png" class="change_quantity_button" formaction="{{ url_for('add_cart_item') }}">
+                        <input type="image" name="action" src="static/images/bin_icon.png" class="remove_item_button" onclick="remove_item('{{loop.index0}}')" formaction="{{ url_for('delete_cart_item') }}">
+                    </div>
+                </div>
+        
+                <div class="item_total_div">
+                    <p class="item_total_text" id="quantity_total_{{loop.index0}}">£{{ (item[2]|int*item[4])|round(2) }}</p>
+                </div>
+            </div>
+        </form>
+
+        <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+        {% else %}
+        <div class="no_items_div" id="no_items">
+            <p class="no_items_message">You have no items inside your basket...</p>
+        </div>
+        <div style="border-bottom: 0.5vw solid #ddd;"></div>
+        {% endfor %}
+    </div>
+
+    <div class="basket_subtotal_div">
+        <p class="subtotal_text">Subtotal: £{{ subtotal|round(2) }}</p>
+        <p class="subtotal_info">shipping calculated at checkout</p>
+        <button class="checkout_button" onclick="show_payment_popup()">Checkout</button>
+    </div>
+
+    <div class="payment_popup" id="payment_popup">
+        <input type="image" src="static/images/close_icon.png" class="close_popup" onclick="hide_payment_popup()">
+
+        <form action="{{ url_for('basket_page') }}" method="post" name="payment_form" onsubmit="return validate_checkout()">
+            <div class="payment_form_container" id="login_or_register">
+                <p class="payment_title">Payment info:</p>
+
+                <div style="border-bottom: 0.5vw solid #ddd;"></div>
+
+                <label for="name" class="payment_label">Full name:</label>
+                <div>
+                    <input type="text" class="payment_input" id="name" name="card_name" placeholder="Your name...">
+                    <p class="invalid_field_text" id="invalid_name">please enter your full name</p>
+                </div>
+
+                <div>
+                    <label for="card" class="payment_label">Card number:</label>
+                    <input type="text" class="payment_input" id="card" name="card_number" placeholder="0123456789103214" maxlength="16" onkeypress="return /[0-9]/i.test(event.key)">
+                    <p class="invalid_field_text" id="invalid_card">invalid card number</p>
+                </div>
+                
+                <div class="expiry_cvv_flex">
+                    <div>
+                        <label for="expiry" class="payment_label">Expiry:</label>
+                        <input type="text" class="payment_input" id="expiry" name="expiry_date" placeholder="MM/YY">
+                        <p class="invalid_field_text" id="invalid_expiry">invalid expiry</p>
+                    </div>
+                    
+                    <div>
+                        <label for="cvv" class="payment_label">CVV:</label>
+                        <input type="text" class="payment_input" id="cvv" name="cvv_code" placeholder="123" maxlength="3" onkeypress="return /[0-9]/i.test(event.key)">
+                        <p class="invalid_field_text" id="invalid_cvv">invalid cvv</p>
+                    </div>
+                </div>
+
+                <input type="submit" class="payment_button" value="Place order">
+
+                <div style="border-bottom: 0.5vw solid #ddd;"></div>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

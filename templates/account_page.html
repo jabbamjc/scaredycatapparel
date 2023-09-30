@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+
+{% block head %}
+<link rel="stylesheet" href="static/css/account_page.css">
+{% endblock %}
+
+
+{% block body %}
+
+<div class="account_page_div">
+    <div class="account_page_flex">
+        <p class="user_email">{{data[0]}}</p>
+        <form action="{{ url_for('logout_user') }}" method="post">
+            <input type="submit" name="logout" value="Log out" class="logout_button">
+        </form>
+
+    </div>
+</div>
+
+{% endblock %}
